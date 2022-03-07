@@ -23,7 +23,9 @@ rm cmake-linux.sh
 sudo apt install -y build-essential autoconf libtool pkg-config
 ```
 
-## Clone and Build gRPC and Protobuf
+## Make and CMAKE build
+
+### Clone and Build gRPC and Protobuf
 
 ``` BASH
 # Clone the grpc repo
@@ -47,4 +49,49 @@ make -j
 make install
 
 popd
+```
+
+## Bazel install (Recommended, especially in WSL :P )
+
+``` BASH
+# install go
+wget -q -O /usr/local/go.tar.gz https://go.dev/dl/go1.17.8.linux-amd64.tar.gz
+
+# extract file
+rm -rf /usr/local/go && tar -C /usr/local -xzf /usr/local/go.tar.gz
+
+# export path changes
+export PATH=$PATH:/usr/local/go/bin
+
+# build and install bazelisk
+go install github.com/bazelbuild/bazelisk@latest
+
+# add to path
+export PATH=$PATH:$(go env GOPATH)/bin
+
+# go to grpc folder
+cd grpc
+
+# may need to do this in some situations
+export CC=/usr/bin/gcc
+
+# Build gRPC C++
+bazelisk build :all
+```
+
+## Even easier (thanks Microsoft!) VCPKG
+``` BASH
+# install vcpkg package manager on your system using the official instructions
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+
+# Bootstrap on Linux:
+./bootstrap-vcpkg.sh
+# Bootstrap on Windows instead:
+# ./bootstrap-vcpkg.bat
+
+./vcpkg integrate install
+
+# install gRPC using vcpkg package manager
+./vcpkg install grpc
 ```
