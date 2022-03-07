@@ -95,3 +95,6 @@ cd vcpkg
 # install gRPC using vcpkg package manager
 ./vcpkg install grpc
 ```
+
+## build a quick request
+[GRPC C Introduction](https://medium.com/@andrewvetovitz/grpc-c-introduction-45a66ca9461f)

@@ -33,3 +33,5 @@
 
 # GRPC ignores
 grpc/
+vcpkg/
+*.pb.*
