@@ -15,12 +15,15 @@ export PATH="$MY_INSTALL_DIR/bin:$PATH"
 sudo apt install -y cmake
 
 # more recent version use:
-wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.19.6/cmake-3.19.6-Linux-x86_64.sh
+wget -q -O cmake-linux.sh https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-Linux-x86_64.sh
 sh cmake-linux.sh -- --skip-license --prefix=$MY_INSTALL_DIR
 rm cmake-linux.sh
 
 # additional required tools
 sudo apt install -y build-essential autoconf libtool pkg-config
+
+# may need this if it is missing
+sudo apt-get install libz-dev
 ```
 
 ## Make and CMAKE build
@@ -29,72 +32,39 @@ sudo apt install -y build-essential autoconf libtool pkg-config
 
 ``` BASH
 # Clone the grpc repo
-git clone --recurse-submodules -b v1.43.0 https://github.com/grpc/grpc
+git clone --recurse-submodules -b v1.44.0 https://github.com/grpc/grpc
 
 # go to grpc folder
 cd grpc
+
+GRPC_CPP_DISTRIBTEST_BUILD_COMPILER_JOBS=${GRPC_CPP_DISTRIBTEST_BUILD_COMPILER_JOBS:-4}
 
 mkdir -p cmake/build
 
 pushd cmake/build
 
 # run cmake commands
-cmake -DgRPC_INSTALL=ON \
-      -DgRPC_BUILD_TESTS=OFF \
-      -DCMAKE_INSTALL_PREFIX=$MY_INSTALL_DIR \
-      ../..
+cmake ../.. -DgRPC_INSTALL=ON \
+            -DCMAKE_INSTALL_PREFIX=$HOME/.local \
+            -DABSL_PROPAGATE_CXX_STD=ON \
+            -DgRPC_BUILD_TYPE=Release \
+            -DgRPC_BUILD_TESTS=OFF \
+            -DgRPC_SSL_PROVIDER=package \
+            -DgRPC_ZLIB_PROVIDER=package # necessary if you installed the libz-dev package or zlib is already there.
 
 # make the files and install
-make -j
-make install
+make "-j${GRPC_CPP_DISTRIBTEST_BUILD_COMPILER_JOBS}" install
 
 popd
 ```
 
-## Bazel install (Recommended, especially in WSL :P )
-
-``` BASH
-# install go
-wget -q -O /usr/local/go.tar.gz https://go.dev/dl/go1.17.8.linux-amd64.tar.gz
-
-# extract file
-rm -rf /usr/local/go && tar -C /usr/local -xzf /usr/local/go.tar.gz
-
-# export path changes
-export PATH=$PATH:/usr/local/go/bin
-
-# build and install bazelisk
-go install github.com/bazelbuild/bazelisk@latest
-
-# add to path
-export PATH=$PATH:$(go env GOPATH)/bin
-
-# go to grpc folder
-cd grpc
-
-# may need to do this in some situations
-export CC=/usr/bin/gcc
-
-# Build gRPC C++
-bazelisk build :all
-```
-
-## Even easier (thanks Microsoft!) VCPKG
-``` BASH
-# install vcpkg package manager on your system using the official instructions
-git clone https://github.com/Microsoft/vcpkg.git
-cd vcpkg
-
-# Bootstrap on Linux:
-./bootstrap-vcpkg.sh
-# Bootstrap on Windows instead:
-# ./bootstrap-vcpkg.bat
-
-./vcpkg integrate install
-
-# install gRPC using vcpkg package manager
-./vcpkg install grpc
-```
-
 ## build a quick request
 [GRPC C Introduction](https://medium.com/@andrewvetovitz/grpc-c-introduction-45a66ca9461f)
+
+### Build
+``` BASH
+mkdir -p cmake/build
+
+pushd cmake/build
+
+cmake -DCMAKE_PREFIX_PATH=$MY_INSTALL_DIR ../..
