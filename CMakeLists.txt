@@ -68,7 +68,7 @@ target_link_libraries(mt_grpc_proto
 
 # Targets mathtest
 foreach(_target
-    client server
+    client server)
     add_executable(${_target} "${_target}.cc")
     target_link_libraries(${_target}
         mt_grpc_proto
@@ -76,5 +76,4 @@ foreach(_target
         ${_GRPC_GRPCPP}
         ${_PROTOBUF_LIBPROTOBUF}
     )
-)
 endforeach()

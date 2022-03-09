@@ -13,6 +13,16 @@ using mathtest::MathReply;
 
 void Run();
 
+class MathTestClient {
+    public:
+        MathTestClient(std::shared_ptr<Channel> channel) : stub_(MathTest::NewStub(channel)) {}
+
+    int sendRequest(int a, int b);
+
+    private:
+        std::unique_ptr<MathTest::Stub> stub_;
+};
+
 int main(int argc, char** argv) {
     Run();
 
@@ -36,4 +46,25 @@ void Run() {
     response = client.sendRequest(a, b);
 
     std::cout << "Answer received: " << a << " * " << b << " = " << response << std::endl;
+}
+
+
+int MathTestClient::sendRequest(int a, int b) {
+    MathRequest request;
+
+    request.set_a(a);
+    request.set_b(b);
+
+    MathReply reply;
+
+    ClientContext context;
+
+    Status status = stub_->sendRequest(&context, request, &reply);
+
+    if (status.ok()) {
+        return reply.result();
+    } else {
+        std::cout << status.error_code() << ": " << status.error_message() << std::endl;
+        return -1;
+    }
 }

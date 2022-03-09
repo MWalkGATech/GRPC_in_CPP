@@ -13,7 +13,20 @@ using mathtest::MathRequest;
 using mathtest::MathReply;
 
 void Run();
-class MathServiceImplementation;
+class MathServiceImplementation final : public MathTest::Service {
+    Status sendRequest(
+        ServerContext* context,
+        const MathRequest* request,
+        MathReply* reply
+    ) override {
+        int a = request->a();
+        int b = request->b();
+
+        reply->set_result(a * b);
+
+        return Status::OK;
+    }
+};
 
 int main(int argc, char** argv) {
     Run();
@@ -35,18 +48,3 @@ void Run() {
 
     server->Wait();
 }
-
-class MathServiceImplementation final : public MathTest::Servce {
-    Status sendRequest(
-        ServerContex* context,
-        const MathRequest* request,
-        MathReply* reply
-    ) override {
-        int a = request->a();
-        int b = request->b();
-
-        reply->set_result(a * b);
-
-        return Status::OK;
-    }
-};
