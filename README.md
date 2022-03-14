@@ -4,7 +4,7 @@ Using the following to get myself acqauinted with yet another language and gRPC 
 
 A note for anyone using this: you need to run through all of the steps for this to work. The steps matter. gRPC tools are stored in a local folder as recommended by the gRPC quickstart.
 
-## STEP 1: ENV Setup
+## Step 1: ENV Setup
 
 ``` BASH
 # Export package directory location
